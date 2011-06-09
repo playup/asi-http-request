@@ -132,8 +132,9 @@ static const NSUInteger kDomainSection = 1;
 - (void)orientationChanged:(NSNotification *)notification
 {
 	[self showTitle];
-	
-	UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
+
+	UIDeviceOrientation o = (UIDeviceOrientation) [[UIApplication sharedApplication] statusBarOrientation];
+
 	CGFloat angle = 0;
 	switch (o) {
 		case UIDeviceOrientationLandscapeLeft: angle = 90; break;
