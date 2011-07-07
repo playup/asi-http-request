@@ -23,6 +23,8 @@
 #import "ASIDataDecompressor.h"
 #import "ASIDataCompressor.h"
 
+#import "ASIHTTPProvider.h"
+
 // Automatically set on build
 NSString *ASIHTTPRequestVersion = @"v1.8.1-8 2011-06-05";
 
@@ -2000,6 +2002,22 @@ static NSOperationQueue *sharedQueue = nil;
 /* ALWAYS CALLED ON MAIN THREAD! */
 - (void)reportFinished
 {
+    if (ASIHTTP_REQUEST_COMPLETE_ENABLED()) {
+        NSString *tmpURL = [[self originalURL] absoluteString];
+        char *buffer = NULL;
+        size_t length = (size_t)([tmpURL lengthOfBytesUsingEncoding:NSASCIIStringEncoding] + 1);
+        buffer = (char *)malloc(length * sizeof(char));
+        if (buffer != NULL) {
+            [tmpURL getCString:buffer maxLength:length encoding:NSASCIIStringEncoding];
+        }
+        if (buffer == NULL) {
+            ASIHTTP_REQUEST_COMPLETE("\0", [self isResponseCompressed], [self didUseCachedResponse]);
+        } else {
+            ASIHTTP_REQUEST_COMPLETE(buffer, [self isResponseCompressed], [self didUseCachedResponse]);
+            free(buffer);
+        }
+    }
+                                 
 	if (delegate && [delegate respondsToSelector:didFinishSelector]) {
 		[delegate performSelector:didFinishSelector withObject:self];
 	}
